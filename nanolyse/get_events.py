@@ -53,7 +53,7 @@ def thresholdsearch( signal, sampling_period, levels, dwelltime=0, skip=2, trace
     
     Parameters
     ----------
-    singal : numpy array
+    signal : numpy array
         The signal should be fed as a array of arrays.
         Each top-level array is threated as a trace of a signal allowing easy cross-trace analysis (for e.g. current dependent analysis).
     sampling_period : float
