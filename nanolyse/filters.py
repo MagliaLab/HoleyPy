@@ -8,9 +8,9 @@ def filter_gaussian(signal, sampling_period, Fs):
     
     Parameters
     ----------
-    singal : numpy array
+    signal : numpy array
         The signal should be fed as a array of arrays.
-        Each top-level array is threated as a trace of a signal allowing easy cross-trace analysis (for e.g. current dependent analysis).
+        Each top-level array is treated as a trace of a signal allowing easy cross-trace analysis (for e.g. current dependent analysis).
     sampling_period : float
         The sampling_frequency is used in combination with the dwelltime argument exclude short events.
     Fs : int
