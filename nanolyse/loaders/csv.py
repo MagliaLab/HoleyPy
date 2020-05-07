@@ -1,8 +1,4 @@
-try:
-    import numpy as np
-    _state = True
-except ModuleNotFoundError:
-    _state = False
+import numpy as np
 
 
 def load(filename, delimiter=''):
