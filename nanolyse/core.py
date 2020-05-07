@@ -1,6 +1,12 @@
 """
 This file will contain the core object class(es)
 """
+import pathlib
+import warnings
+import numpy as np
+from .loaders import ext_to_loader
+
+_lazy_formats = [".hd5"]
 
 def get_extension(datafile):
     """
@@ -9,18 +15,23 @@ def get_extension(datafile):
     returns:
         extension (str)
     """
-    raise NotImplementedError
+    return pathlib.Path(datafile).suffix
 
-def get_reader(datafile, extension):
+def get_loader(extension):
     """
-    Get appropriate reader for datafile and extension
+    Get appropriate loader for datafile and extension
 
     return:
         file handle? generator?
     """
-    raise NotImplementedError
+    try:
+        return ext_to_loader[extension]
+    except KeyError:
+        msg = "No loader for extension: " + extension + "\n"
+        msg += "Available loaders: " + ext_to_loader.keys()
+        raise KeyError(msg)
 
-def get_preprocessor(extension, reader):
+def get_preprocessor(loader, extension):
     """
     Get appropriate preprocessor for data type
     with wrapped reader so that data is automagically preprocessed
@@ -32,7 +43,8 @@ def get_preprocessor(extension, reader):
     return:
         generator
     """
-    raise NotImplementedError
+    # Not implemented for now
+    return loader
 
 class Core(np.ndarray):
     """
