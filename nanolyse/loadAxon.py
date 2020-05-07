@@ -1,4 +1,7 @@
-from neo.io import AxonIO
+try:
+    from neo.io import AxonIO
+except:
+    pass
 import numpy as np
 
 def loadAxon( fname ):
