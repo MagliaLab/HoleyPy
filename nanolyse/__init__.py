@@ -8,6 +8,3 @@ from .get_features_THS import *
 from .thresholdsearch_mmult import *
 
 from .filters import *
-
-
-name = "nanolyse"
