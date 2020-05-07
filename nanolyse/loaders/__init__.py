@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from . import csvloader
+from . import csv
 from . import axonabf
 
 

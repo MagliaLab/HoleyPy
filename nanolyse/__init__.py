@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import traceloader
+from . import loaders
 
 from .get_levels import *
 from .get_events import *
