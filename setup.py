@@ -7,7 +7,8 @@ setup(
     packages=["nanolyse"],
     install_requires=[
         'numpy >= 1.18.2',
-        'scipy >= 1.4.1'
+        'scipy >= 1.4.1',
+        'h5py >= 2.10.0'
     ],
     extra_requires={
         "Axon": 'neo >= 0.8.0'
