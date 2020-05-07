@@ -10,5 +10,3 @@
 #from .filters import *
 
 from .core import Core
-
-name = "nanolyse"
