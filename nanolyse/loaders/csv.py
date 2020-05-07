@@ -22,4 +22,15 @@ def load_csv(filename, delimiter=''):
 
     return np.genfromtxt(filename, delimiter=delimiter)
 
+def load_csv_lazy(filename, lb=0, ub=None):
+    filehandle = open(filename)
+    try:
+        for i, line in enumerate(filehandle):
+            if i >= lb:
+                yield float(line.strip())
+            if ub is not None and i > ub:
+                break
+    finally:
+        filehandle.close()
+
 ext_to_loader[".csv"] = load_csv
