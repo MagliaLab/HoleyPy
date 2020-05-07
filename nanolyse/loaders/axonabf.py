@@ -1,15 +1,9 @@
-try:
-    from neo.io import AxonIO
-    import numpy as np
-    _state = True
-except ModuleNotFoundError:
-    _state = False
+from neo.io import AxonIO
+import numpy as np
+from ..loaders import ext_to_loader
 
 
-_trace_extension = '.abf'
-
-
-def load(filename):
+def load_axonabf(filename):
     """Load data from axon binary file into nanolyse.
 
     Load data from axon binary file into nanolyse.
@@ -37,3 +31,7 @@ def load(filename):
         return signal, sampling_period
     except:
         print("Unable to load .abf file")
+
+# Add loader to the dictionary
+# So we know which loaders are there
+ext_to_loader['.abf'] = load_axonabf

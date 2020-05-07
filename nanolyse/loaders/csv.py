@@ -1,7 +1,7 @@
 import numpy as np
+from ..loaders import ext_to_loader
 
-
-def load(filename, delimiter=''):
+def load_csv(filename, delimiter=''):
     """Function to load .csv files.
 
     Loads data traces from comma separated files.
@@ -20,4 +20,6 @@ def load(filename, delimiter=''):
             :param delimiter: str
     """
 
-    return [np.genfromtxt(filename, delimiter=delimiter)]
+    return np.genfromtxt(filename, delimiter=delimiter)
+
+ext_to_loader[".csv"] = load_csv
