@@ -6,8 +6,6 @@ import warnings
 import numpy as np
 from .loaders import ext_to_loader
 
-_lazy_formats = [".hd5"]
-
 def get_extension(datafile):
     """
     Determine the type of data from the datafile
@@ -54,29 +52,18 @@ class Core(np.ndarray):
     Data will be lazily pulled from self._reader.
     New plan, try to subclass from ndarray
 
-    This will do for loading csv files,
-    we will have to come up with a different solution for
-    hdf5 files
+class Core:
     """
-    def __new__(cls, datafile, extension):
-        """
-        This will initialize our object as a subclasses ndarray
-        info @: https://numpy.org/devdocs/user/basics.subclassing.html
-        """
+    self.data is some dictionary-like object
+    """
+    def __init__(self, filename):
+        extension = get_extension(filename)
         loader = get_loader(extension)
-        loader = get_preprocessor(loader, extension)
-        data = loader(datafile)
-        obj = np.asarray(data).view(cls)
-        # Keep the extension and loader just in case
-        obj._extension = extension
-        obj._loader = loader
-        return obj
+        self.data = loader(filename)
+        self.config = h5_config
 
-    def __array_finalize__(self, obj):
-        """
-        Here will be the actual initialization of new attributes
-        """
-        if obj is None: return
-        self._extension = getattr(obj, '_extension', None)
-        self._loader = getattr(obj, '_loader', None)
+    def __getitem__(self, item):
+        return self.data[self.config["traces"][item]]
 
+    def keys(self):
+        return self.config["traces"]
