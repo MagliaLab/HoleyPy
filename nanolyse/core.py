@@ -44,13 +44,12 @@ def get_preprocessor(loader, extension):
     # Not implemented for now
     return loader
 
-class Core(np.ndarray):
-    """
-    We need a "core" object, something that takes care of reading the data,
-    maybe preprocesses it according to its type, and then presents
-    the data to the user in a user-friendly way.
-    Data will be lazily pulled from self._reader.
-    New plan, try to subclass from ndarray
+h5_config = {
+    "traces": {
+        "force1": "Force LF/Force 1x",
+        "force2": "Force LF/Force 2x"
+    }
+}
 
 class Core:
     """
