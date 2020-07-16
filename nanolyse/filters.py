@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
-def filter_gaussian(signal, sampling_period, Fs):
+
+def filter_gaussian(signal : np.ndarray, sampling_period, Fs):
     """Gaussian filter for signal.
     
     Filters input signal using a gaussian filer and a user defined cut-off frequency.
@@ -22,5 +23,5 @@ def filter_gaussian(signal, sampling_period, Fs):
         Returns a numpy array, equal dimensions as the input signal
         
     """
-    sigma = 1 / ( sampling_period * Fs * 2 * np.pi)
-    return gaussian_filter( signal, sigma )
+    sigma = 1 / (sampling_period * Fs * 2 * np.pi)
+    return gaussian_filter(signal, sigma)
