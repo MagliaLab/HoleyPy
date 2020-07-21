@@ -1,5 +1,9 @@
+from .base import AnalysisBase
+import warnings
+
 import numpy as np
 from scipy.optimize import curve_fit
+
 
 def get_levels( signal, sigma = 1, trace=0, t0=0, t1=-1 ):
     """Level detection algorithm.
@@ -26,20 +30,23 @@ def get_levels( signal, sigma = 1, trace=0, t0=0, t1=-1 ):
         A tuple containing (in order), centroid of the open pore current and threshold.
         
     """
-    try:
-        signal = signal[ trace ][ t0:t1 ]
-        mu, std, res = gauss_deconv( abs( np.array( signal ) ) * -1 )
-        l0 = mu * np.sign( sum( signal ) ) * - 1
-        l1 = ( ( abs( std ) * sigma ) ) * np.sign( sum( signal ) ) * -1
-        return ( True, l0, l1 )
-    except:
-        return ( False, 0, 0 )
+    signal = signal[ trace ][ t0:t1 ]
+    result = gauss_deconv( abs( np.array( signal ) ) * -1 )
+    if result is None:
+        return (False, 0, 0)
+    mu, std, res = result
+    l0 = mu * np.sign( sum( signal ) ) * - 1
+    l1 = ( ( abs( std ) * sigma ) ) * np.sign( sum( signal ) ) * -1
+    return ( True, l0, l1 )
+
 
 def gauss( x, *p ): 
     a, mu, sigma = p
     return a*np.exp( -( x - mu )**2 / float( 2 * sigma**2 ) )
 
+
 def gauss_deconv( signal, n_peaks = 2 ):
+    #TODO we really have to fix this try/except mess
     try:
         bins = np.linspace( min( signal ), max( signal ), 2000 )    # Bins the signal
         hist = np.histogram( np.abs( signal ) * -1, bins=bins )     # Histogram sthe signal
@@ -66,3 +73,15 @@ def gauss_deconv( signal, n_peaks = 2 ):
                 return means[ np.argmax( np.abs( means ) ) ], np.std( signal ), res
     except:
         pass
+
+
+class Levels(AnalysisBase):
+    def _operation(self):
+        signal = self.trace.data
+        trace = self.trace.active_trace
+        self.result = get_levels(signal, trace=trace)
+
+    def _after(self):
+        if self.result[0] is False:
+            warnings.warn("Found no levels")
+            self.success = False
