@@ -14,7 +14,7 @@ class Trace:
     and the graphical frontend
     """
     def __init__(self, *, f):
-        self.data = {}
+        self.data = []
         self.frequency = f
         self.active_trace = None
         self.filter_stack = [_unfiltered]
@@ -60,7 +60,7 @@ class Trace:
         stack = copy.deepcopy(self.filter_stack)
         return self._apply_filter_stack(stack)
 
-    def apply_filter_stack(self, stack):
+    def _apply_filter_stack(self, stack):
         """
         Recursively apply the filter stack
         :param stack:
@@ -68,48 +68,26 @@ class Trace:
         """
         _filter = stack.pop()
         if len(stack) > 0:
-            return _filter(self.apply_filter_stack(stack))
+            return _filter(self._apply_filter_stack(stack))
         else:
-            return _filter(self.active_trace)
-
-    def __iter__(self):
-        for y in self.active_trace:
-            yield y
-
-    def __len__(self):
-        return self._len
-
-    def __setitem__(self, key, value):
-        self.data[key] = value
-
-    def __getitem__(self, item):
-        return self.data[item]
+            i = self.active_trace
+            return _filter(np.array(self[i]))
 
     def add_data(self, array):
-        self[self.n_traces] = np.array(array)
+        self.set_active(len(self))
+        self.data.append(np.array(array))
 
     def add_filter(self, _filter, **kwargs):
         partial_filter = partial(_filter, f=self.frequency, **kwargs)
         self.filter_stack.append(partial_filter)
 
-    @property
-    def n_traces(self):
-        return len(self.data.keys())
-
-    @classmethod
-    def from_csv(cls, csv_file, *, f):
-        obj = cls(f=f)
-        data = loaders.csv(csv_file)
-        obj.add_data(data)
-        return obj
-
     def as_array(self):
         """
         Return the internal (filtered) data and corresponding time as
-        a numpy array with shape n, 2
+        a numpy array
         :return: ndarray
         """
-        return np.array([list(self.time), list(self.filtered)])
+        return np.array(self.filtered)
 
     @property
     def time(self):
@@ -117,15 +95,17 @@ class Trace:
         Frequency in kHz
         :return: ndarray
         """
-        t = 0
         dt = 1/(self.frequency*1000)
-        for _ in range(len(self)):
-            yield t
+        i = self.active_trace
+        out = []
+        t = 0
+        for _ in range(len(self[i])):
+            out.append(t)
             t += dt
+        return np.array(out)
 
     def set_active(self, key):
-        self.active_trace = self.data[key]
-        self._len = len(list(self.active_trace))
+        self.active_trace = key
 
     def list_traces(self):
         return list(self.data.keys())
