@@ -1,6 +1,7 @@
 from . import loaders
 import numpy as np
 from functools import partial
+import copy
 
 
 def _unfiltered(x):
@@ -56,7 +57,8 @@ class Trace:
 
     @property
     def filtered(self):
-        return self.apply_filter_stack(self.filter_stack)
+        stack = copy.deepcopy(self.filter_stack)
+        return self._apply_filter_stack(stack)
 
     def apply_filter_stack(self, stack):
         """
