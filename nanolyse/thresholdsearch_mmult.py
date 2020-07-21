@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+#TODO: I'm not sure where to put this..
 def thresholdsearch_mmult( signal, sampling_period, L0, l1, dwelltime=0, skip=2, trace=0, t0=0, t1=-1 ):
     try:
         signal = signal[ trace ][ t0:t1 ]
