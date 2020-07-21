@@ -13,5 +13,12 @@ setup(
     extra_requires={
         "Axon": 'neo >= 0.8.0'
     },
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    package_data={
+        '': [
+            "tests/data/Blank.csv",
+            "tests/data/ProteinDigest.csv"
+        ]
+    }
+
 )
