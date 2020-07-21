@@ -17,7 +17,42 @@ class Trace:
         self.frequency = f
         self.active_trace = None
         self.filter_stack = [_unfiltered]
-        self._len = 0
+
+    def __iter__(self):
+        for trace in self.data:
+            yield trace
+
+    def __len__(self):
+        return len(self.data)
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __repr__(self):
+        return f"Traces: {','.join([str(i) for i, _ in enumerate(self)])}\n" \
+               f"Active trace: {self.active_trace}"
+
+    @classmethod
+    def from_csv(cls, csv_file, *, f):
+        obj = cls(f=f)
+        for trace in loaders.csv(csv_file):
+            obj.add_data(trace)
+        return obj
+
+    @classmethod
+    def from_abf(cls, abf_file):
+        signal, sampling_period = loaders.axonabf(abf_file)
+        obj = cls(f=sampling_period)
+        for trace in signal:
+            obj.add_data(trace)
+        return obj
+
+    @property
+    def n_traces(self):
+        return len(self.data)
 
     @property
     def filtered(self):
