@@ -81,13 +81,15 @@ class Trace:
         partial_filter = partial(_filter, f=self.frequency, **kwargs)
         self.filter_stack.append(partial_filter)
 
-    def as_array(self):
+    @property
+    def rawdata(self):
         """
         Return the internal (filtered) data and corresponding time as
         a numpy array
         :return: ndarray
         """
-        return np.array(self.filtered)
+        i = self.active_trace
+        return np.array(self[i])
 
     @property
     def time(self):
