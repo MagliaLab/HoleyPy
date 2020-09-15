@@ -19,9 +19,12 @@ class Trace:
     """
     def __init__(self, *, f):
         self.data = []
-        self.frequency = f
+        self.sampling_frequency = f
+        self.sampling_period = 1 / f
         self.active_trace = None
         self.levels = None
+        self.t0 = 0
+        self.t1 = -1
         self.filter_stack = [_unfiltered]
 
     def __iter__(self):
@@ -56,7 +59,7 @@ class Trace:
         :return: updated cls
         """
         signal, sampling_period = loaders.axonabf(abf_file)
-        obj = cls(f=sampling_period)
+        obj = cls(f=int(1/sampling_period))
         for trace in signal:
             obj.add_data(trace)
         return obj
@@ -88,7 +91,7 @@ class Trace:
         self.data.append(np.array(array))
 
     def add_filter(self, _filter, **kwargs) -> None:
-        partial_filter = partial(_filter, f=self.frequency, **kwargs)
+        partial_filter = partial(_filter, f=self.sampling_period, **kwargs)
         self.filter_stack.append(partial_filter)
 
     @property
@@ -104,10 +107,10 @@ class Trace:
     @property
     def time(self) -> np.array:
         """
-        Frequency in kHz
+        Sampling period per second
         :return: ndarray
         """
-        dt = 1/(self.frequency*1000)
+        dt = self.sampling_period
         i = self.active_trace
         out = []
         t = 0
@@ -122,9 +125,13 @@ class Trace:
     def set_levels(self, mu, std, sigma=1) -> None:
         self.levels = (mu, std*sigma)
 
+    def set_trim(self, t0=0, t1=-1):
+        self.t0 = int(t0 * self.sampling_frequency)
+        self.t1 = int(max(-1, t1 * self.sampling_frequency))
+
     def join_traces(self, t0=0, t1=-1):
         signal = self.data
-        sampling_period = self.frequency
+        sampling_period = self.sampling_period
         if (t0 >= 0) & (t0 <= len(signal[0])):
             t0 = int(t0 / sampling_period)
         else:

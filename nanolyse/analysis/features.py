@@ -6,10 +6,10 @@ import numpy as np
 
 def get_features_THS(event_data: tuple, sampling_period: float) -> tuple:
     L0, L1, L0_start, L0_end, L1_start, L1_end = event_data
-    L0_mean = np.array([ np.mean( i ) for i in L0 ])
-    L0_SD = np.array([ np.std( i ) for i in L0 ])
-    L1_mean = np.array([ np.mean( i ) for i in L1 ])
-    L1_SD = np.array([ np.std( i ) for i in L1 ])
+    L0_mean = np.array([np.mean( i ) for i in L0])
+    L0_SD = np.array([np.std(i) for i in L0])
+    L1_mean = np.array([np.mean(i) for i in L1])
+    L1_SD = np.array([np.std(i) for i in L1])
 
     # Calculate the residual currents in each events
     Ires_L1 = np.array([ i / float( j ) for i, j in zip( L1, L0_mean ) ])
@@ -26,5 +26,5 @@ class Features(AnalysisBase):
         self.events = Events(self.trace).run()
 
     def _operation(self):
-        sampling_period = self.trace.frequency
+        sampling_period = self.trace.sampling_period
         self.result = get_features_THS(self.events, sampling_period)

@@ -84,10 +84,12 @@ def thresholdsearch(signal: np.ndarray, sampling_period: float, levels: tuple,
         All start and ends are returned as position of the datapoint in the trace.
         
     """
-    print(levels)
     l0, l1 = levels
-    signal = signal[ trace ][ t0:t1 ]
+    trace_length = len(signal[trace])
+    signal = signal[trace][t0:min(trace_length, t1)]
     n_filter = dwelltime / float( sampling_period ) if dwelltime / float( sampling_period ) > 2 else 2    # While dwelltime suggests that also spikes can be seen, atleast 2 datapoints are required to be an event
+
+    print("Filter %s" % n_filter)
     a = np.where( abs( np.array( signal ) ) < ( abs( l0 ) - abs( l1 ) ) )[0]                              # All datapoints above the threshold
     L1_end = np.where( np.diff( a ) > skip )[0]                                                           # Get all event starts (e.g. where two datapoints are maximum 'skip' apart)
     L1_end = np.append( L1_end, len(a)-1 )
@@ -109,11 +111,14 @@ class Events(AnalysisBase):
 
     def _operation(self):
         signal = np.array(self.trace.data)
-        sampling_period = self.trace.frequency
+        sampling_period = self.trace.sampling_period
         trace = self.trace.active_trace
         self.result = thresholdsearch(signal, sampling_period,
                                       levels=self.levels,
-                                      trace=trace)
+                                      trace=trace,
+                                      t0=self.trace.t0,
+                                      t1=self.trace.t1
+                                      )
 
     def _after(self):
         for array in self.result:

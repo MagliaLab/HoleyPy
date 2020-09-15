@@ -7,8 +7,12 @@ A python package for analyzing electrophysiology and other things by Florian Luc
 
 ## Main features
 * Load data from single-channel nanopore electrophysiology (electrophys)
-* Filter electrophys 
-* Detect events within electrophys data
+* Automatic detection of baseline currents
+* Threshold search detection of events
+* Determination of Excluded currents (I<sub>ex</sub>), its standard deviation (I<sub>ex</sub>SD) and dwell time
+
+## Installing
+Information regarding installation.
 
 ## Usage example(s)
 Importing module classes:
@@ -18,23 +22,42 @@ from nanolyse.analysis import Levels, Events, Features
 ````
 Loading signal trace(s) and changing the active trace
 ````python
-sample_fname = './data/ProteinDigest.abf'
+# Access sample data
+import pkg_resources
+from pathlib import Path
+sample_fname = Path(
+        pkg_resources.resource_filename(
+            __name__,
+            "data/ProteinDigest.abf")
+    )
+
+# Load trace(s) from sample data
 signal_data = Trace.from_abf(sample_fname)
+
+# Set active trace
 signal_data.set_active(1)
 ````
-Filtering signal data
+Setting a signal cut-off, the sample data contains a protocol of switching voltage which we want to trim
+````python
+# Set the starting (t0) and end (t1) cut-off in seconds
+t0 = 1.8
+t1 = 5.8
+signal_data.set_trim(t0=t0, t1=t1)
+````
+Adding filters to signal data
 ````python
 filter_frequency = 1000
 signal_data.add_filter(filters.gaussian, Fs=filter_frequency)
 ````
-Finding levels
+Finding levels, which can be done automatically using Levels, or manually using set_levels.
+*Note*: Levels returns (0, 0) if no levels were found. 
 ````python
 # Automatically find levels
 levels = Levels(signal_data).run()
 
 # Manually setting levels
-baseline_current = -200
-baseline_error = 2
+baseline_current = -116
+baseline_error = 4
 signal_data.set_levels(baseline_current, baseline_error)
 ````
 Finding events using threshold search
