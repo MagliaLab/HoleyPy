@@ -37,14 +37,19 @@ class Trace:
                f"Active trace: {self.active_trace}"
 
     @classmethod
-    def from_csv(cls, csv_file, *, f):
+    def from_csv(cls, csv_file, *, f, **kwargs):
         obj = cls(f=f)
         for trace in loaders.csv(csv_file):
             obj.add_data(trace)
         return obj
 
     @classmethod
-    def from_abf(cls, abf_file):
+    def from_abf(cls, abf_file, *args, **kwargs):
+        """
+        Load data using the Axon Binary File format
+        :param abf_file:
+        :return: updated cls
+        """
         signal, sampling_period = loaders.axonabf(abf_file)
         obj = cls(f=sampling_period)
         for trace in signal:

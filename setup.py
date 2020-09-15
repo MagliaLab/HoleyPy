@@ -8,7 +8,8 @@ setup(
     install_requires=[
         'numpy >= 1.18.2',
         'scipy >= 1.4.1',
-        'h5py >= 2.10.0'
+        'h5py >= 2.10.0',
+        'neo >= 0.8.0'
     ],
     extra_requires={
         "Axon": 'neo >= 0.8.0'
@@ -17,7 +18,9 @@ setup(
     package_data={
         '': [
             "tests/data/Blank.csv",
-            "tests/data/ProteinDigest.csv"
+            "tests/data/ProteinDigest.csv",
+            "tests/data/Blank.abf",
+            "tests/data/ProteinDigest.abf"
         ]
     }
 
