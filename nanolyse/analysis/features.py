@@ -4,7 +4,7 @@ from . import Events
 import numpy as np
 
 
-def get_features_THS( event_data, sampling_period ):
+def get_features_THS(event_data: tuple, sampling_period: float) -> tuple:
     L0, L1, L0_start, L0_end, L1_start, L1_end = event_data
     L0_mean = np.array([ np.mean( i ) for i in L0 ])
     L0_SD = np.array([ np.std( i ) for i in L0 ])

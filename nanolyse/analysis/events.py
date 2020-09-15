@@ -48,8 +48,8 @@ import numpy as np
 import warnings
 
 
-def thresholdsearch(signal : np.ndarray, sampling_period, levels,
-                    dwelltime=0, skip=2, trace=0, t0=0, t1=-1 ):
+def thresholdsearch(signal: np.ndarray, sampling_period: float, levels: tuple,
+                    dwelltime=0, skip=2, trace=0, t0=0, t1=-1) -> tuple:
     """Event detection algorithm using threshold.
     
     This function uses a defined set of cut-off parameters (levels) to determine event locations.
@@ -84,7 +84,8 @@ def thresholdsearch(signal : np.ndarray, sampling_period, levels,
         All start and ends are returned as position of the datapoint in the trace.
         
     """
-    p, l0, l1 = levels
+    print(levels)
+    l0, l1 = levels
     signal = signal[ trace ][ t0:t1 ]
     n_filter = dwelltime / float( sampling_period ) if dwelltime / float( sampling_period ) > 2 else 2    # While dwelltime suggests that also spikes can be seen, atleast 2 datapoints are required to be an event
     a = np.where( abs( np.array( signal ) ) < ( abs( l0 ) - abs( l1 ) ) )[0]                              # All datapoints above the threshold
@@ -96,11 +97,15 @@ def thresholdsearch(signal : np.ndarray, sampling_period, levels,
     L0_start, L0_end = np.delete( np.insert( L1_end+1, 0, 0 ), -1, 0 ), L1_start                          # Set L0 relative to L1
     L0 = np.array( [ signal[i:j] for i, j in zip( L0_start, L0_end ) ] )                                  # Add the signal of L0
     L1 = np.array( [ signal[i:j] for i, j in zip( L1_start, L1_end ) ] )                                  # Add the signal of L1
-    return ( L0, L1, L0_start, L0_end, L1_start, L1_end )
+    return (L0, L1, L0_start, L0_end, L1_start, L1_end)
+
 
 class Events(AnalysisBase):
     def _before(self):
-        self.levels = Levels(self.trace).run()
+        if self.trace.levels:
+            self.levels = self.trace.levels
+        else:
+            self.levels = Levels(self.trace).run()
 
     def _operation(self):
         signal = np.array(self.trace.data)

@@ -2,6 +2,10 @@ from . import loaders
 import numpy as np
 from functools import partial
 import copy
+from typing import TypeVar
+
+
+Trace_object = TypeVar('Trace_object')
 
 
 def _unfiltered(x):
@@ -17,6 +21,7 @@ class Trace:
         self.data = []
         self.frequency = f
         self.active_trace = None
+        self.levels = None
         self.filter_stack = [_unfiltered]
 
     def __iter__(self):
@@ -37,14 +42,14 @@ class Trace:
                f"Active trace: {self.active_trace}"
 
     @classmethod
-    def from_csv(cls, csv_file, *, f, **kwargs):
+    def from_csv(cls, csv_file, *, f, **kwargs) -> Trace_object:
         obj = cls(f=f)
         for trace in loaders.csv(csv_file):
             obj.add_data(trace)
         return obj
 
     @classmethod
-    def from_abf(cls, abf_file, *args, **kwargs):
+    def from_abf(cls, abf_file, *args, **kwargs) -> Trace_object:
         """
         Load data using the Axon Binary File format
         :param abf_file:
@@ -57,7 +62,7 @@ class Trace:
         return obj
 
     @property
-    def n_traces(self):
+    def n_traces(self) -> int:
         return len(self.data)
 
     @property
@@ -78,16 +83,16 @@ class Trace:
             i = self.active_trace
             return _filter(np.array(self[i]))
 
-    def add_data(self, array):
+    def add_data(self, array) -> None:
         self.set_active(len(self))
         self.data.append(np.array(array))
 
-    def add_filter(self, _filter, **kwargs):
+    def add_filter(self, _filter, **kwargs) -> None:
         partial_filter = partial(_filter, f=self.frequency, **kwargs)
         self.filter_stack.append(partial_filter)
 
     @property
-    def rawdata(self):
+    def rawdata(self) -> np.array:
         """
         Return the internal (filtered) data and corresponding time as
         a numpy array
@@ -97,7 +102,7 @@ class Trace:
         return np.array(self[i])
 
     @property
-    def time(self):
+    def time(self) -> np.array:
         """
         Frequency in kHz
         :return: ndarray
@@ -111,8 +116,11 @@ class Trace:
             t += dt
         return np.array(out)
 
-    def set_active(self, key):
+    def set_active(self, key) -> None:
         self.active_trace = key
+
+    def set_levels(self, mu, std, sigma=1) -> None:
+        self.levels = (mu, std*sigma)
 
     def join_traces(self, t0=0, t1=-1):
         signal = self.data

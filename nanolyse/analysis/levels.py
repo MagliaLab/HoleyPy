@@ -5,14 +5,14 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 
-def get_levels( signal, sigma = 1, trace=0, t0=0, t1=-1 ):
+def get_levels(signal: np.array, sigma=1, trace=0, t0=0, t1=-1) -> tuple:
     """Level detection algorithm.
     
     This function uses a gaussian fit around the main signal to determine the open pore current and threshold cut-off.
         
     Parameters
     ----------
-    singal : numpy array
+    signal : numpy array
         The signal should be fed as a array of arrays.
         Each top-level array is threated as a trace of a signal allowing easy cross-trace analysis (for e.g. current dependent analysis).
     sigma : int
@@ -37,7 +37,7 @@ def get_levels( signal, sigma = 1, trace=0, t0=0, t1=-1 ):
     mu, std, res = result
     l0 = mu * np.sign( sum( signal ) ) * - 1
     l1 = ( ( abs( std ) * sigma ) ) * np.sign( sum( signal ) ) * -1
-    return ( True, l0, l1 )
+    return ( l0, l1 )
 
 
 def gauss( x, *p ): 

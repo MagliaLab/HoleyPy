@@ -6,7 +6,7 @@ import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
 
-def gaussian(signal : np.ndarray, Fs, *, f):
+def gaussian(signal : np.ndarray, Fs, *, f) -> np.array:
     """Gaussian filter for signal.
     
     Filters input signal using a gaussian filer and a user defined cut-off frequency.
