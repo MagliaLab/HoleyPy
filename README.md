@@ -60,7 +60,7 @@ baseline_current = -116
 baseline_error = 4
 signal_data.set_levels(baseline_current, baseline_error)
 ````
-Cutoff parameters
+Minimal dwell time cut-offs are important as it is an easy way to discard noise. It is also optional to allow for outliers (default=2 data points)
 ````python
 # Set the minimal dwell time (in seconds) for each event
 signal_data.set_dwell_time_cutoff(4e-4)
@@ -87,6 +87,9 @@ Getting the Excluded current, their standard deviation and dwelltime
 # If levels were not set manually, it will also run Levels(signal_data) to determine them.
 excluded_current, excluded_current_variance, dwell_time = Features(signal_data).run()
 ````
+Running the code above, and plotting a part of the first trace (left) and a histogram of the residual current (right) 
+with 101 bins should result in a figure similar to the one below.
+![test_sample](./nanolyse/tests/data/test_README_Trace_Iex.png)
 
 ## Documentation
 We have to add the documentation here.
