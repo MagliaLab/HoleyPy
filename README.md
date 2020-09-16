@@ -63,20 +63,20 @@ signal_data.set_levels(baseline_current, baseline_error)
 Finding events using threshold search
 ````python
 # If levels were not set manually, this will use Levels(signal_data) to determine them.
-L0, L1, L0_start, L0_end, L1_start, L1_end = Events(signal_data).run()
+level_0, level_1, level_0_start, level_0_end, level_1_start, level_1_end = Events(signal_data).run()
 
-# L0 contains an numpy.ndarray with signals from the baseline
-# L1 contains an numpy.ndarray with signals from the events
-# L0_start contains an numpy.array with the start times of the baseline
-# L0_end contains an numpy.array with the end times of the baseline
-# L1_start contains an numpy.array with the start times of the events
-# L1_end contains an numpy.array with the end times of the events
+# level_0 contains an numpy.ndarray with signals from the baseline
+# level_1 contains an numpy.ndarray with signals from the events
+# level_0_start contains an numpy.array with the start times of the baseline
+# level_0_end contains an numpy.array with the end times of the baseline
+# level_1_start contains an numpy.array with the start times of the events
+# level_1_end contains an numpy.array with the end times of the events
 ````
 Getting the Excluded current, their standard deviation and dwelltime
 ````python
 # This will run the Events(signal_data) prior to fetching features.
 # If levels were not set manually, it will also run Levels(signal_data) to determine them.
-Iex, IexSD, dwelltime = Features(signal_data).run()
+excluded_current, excluded_current_variance, dwell_time = Features(signal_data).run()
 ````
 
 ## Documentation
