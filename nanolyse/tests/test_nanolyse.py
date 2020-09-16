@@ -11,7 +11,7 @@ from ..analysis import *
 
 _sampling_period = 2e-5
 _test_filter = 2000
-_sample_fname = './data/ProteinDigest.csv'
+_sample_fname = './data/ProteinDigest.abf'
 _levels = (True, -115.7, 1.2)
 
 
@@ -20,9 +20,9 @@ def blank_trace():
     blank = Path(
         pkg_resources.resource_filename(
             __name__,
-            "data/Blank.csv")
+            "data/Blank.abf")
     )
-    return Trace.from_csv(blank, f=1000)
+    return Trace.from_abf(blank)
 
 
 @pytest.fixture
@@ -30,9 +30,9 @@ def protein_digest():
     pd = Path(
         pkg_resources.resource_filename(
             __name__,
-            "data/ProteinDigest.csv")
+            "data/ProteinDigest.abf")
     )
-    return Trace.from_csv(pd, f=1000)
+    return Trace.from_abf(pd)
 
 
 def test_trace(blank_trace):
