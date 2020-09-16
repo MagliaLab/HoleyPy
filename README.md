@@ -60,6 +60,15 @@ baseline_current = -116
 baseline_error = 4
 signal_data.set_levels(baseline_current, baseline_error)
 ````
+Cutoff parameters
+````python
+# Set the minimal dwell time (in seconds) for each event
+signal_data.set_dwell_time_cutoff(4e-4)
+
+# (optional) set the number of outlier data points before ending an event (default=2)
+signal_data.set_event_skip(2)
+````
+
 Finding events using threshold search
 ````python
 # If levels were not set manually, this will use Levels(signal_data) to determine them.
