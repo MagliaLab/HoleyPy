@@ -21,6 +21,8 @@ class Trace:
         self.data = []
         self.sampling_frequency = f
         self.sampling_period = 1 / f
+        self.minimal_dwell_time = 0
+        self.event_skip = 2
         self.active_trace = None
         self.levels = None
         self.t0 = 0
@@ -125,9 +127,15 @@ class Trace:
     def set_levels(self, mu, std, sigma=1) -> None:
         self.levels = (mu, std*sigma)
 
-    def set_trim(self, t0=0, t1=-1):
+    def set_trim(self, t0=0, t1=-1) -> None:
         self.t0 = int(t0 * self.sampling_frequency)
         self.t1 = int(max(-1, t1 * self.sampling_frequency))
+
+    def set_dwell_time_cutoff(self, cutoff: float) -> None:
+        self.minimal_dwell_time = float(cutoff)
+
+    def set_event_skip(self, n: int) -> None:
+        self.event_skip = int(n)
 
     def join_traces(self, t0=0, t1=-1):
         signal = self.data
