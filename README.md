@@ -1,4 +1,3 @@
-# HoleyPy
 ![HoleyPy](./img/HoleyPy.png)
 > Python library for the analysis of amperometric single-channel nanopore recordings.
 
