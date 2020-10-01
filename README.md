@@ -1,4 +1,5 @@
-# stunning-journey
+# HoleyPy
+![HoleyPy](./img/HoleyPy.png)
 > Python library for the analysis of amperometric single-channel nanopore recordings.
 
 ## Introduction
@@ -17,8 +18,8 @@ Information regarding installation.
 ## Usage example(s)
 Importing module classes:
 ````python
-from nanolyse import Trace, filters
-from nanolyse.analysis import Levels, Events, Features
+from HoleyPy import Trace, filters
+from HoleyPy.analysis import Levels, Events, Features
 ````
 Loading signal trace(s) and changing the active trace
 ````python
