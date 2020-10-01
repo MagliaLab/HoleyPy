@@ -17,8 +17,8 @@ Information regarding installation.
 ## Usage example(s)
 Importing module classes:
 ````python
-from HoleyPy import Trace, filters
-from HoleyPy.analysis import Levels, Events, Features
+from holeypy import Trace, filters
+from holeypy.analysis import Levels, Events, Features
 ````
 Loading signal trace(s) and changing the active trace
 ````python
