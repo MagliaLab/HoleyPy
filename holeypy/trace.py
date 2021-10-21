@@ -18,6 +18,7 @@ class Trace:
     and the graphical frontend
     """
     def __init__(self, *, f):
+        self.file_name = ""
         self.data = []
         self.sampling_frequency = f
         self.sampling_period = 1 / f
@@ -28,6 +29,9 @@ class Trace:
         self.t0 = 0
         self.t1 = -1
         self.filter_stack = [_unfiltered]
+        self.enable_filters = True
+        self.optimize_events = False
+        self.store_events = True
 
     def __iter__(self):
         for trace in self.data:
@@ -40,7 +44,13 @@ class Trace:
         self.data[key] = value
 
     def __getitem__(self, item):
-        return self.data[item]
+        if self.enable_filters:
+            data = self.data[item][self.t0:self.t1]
+            for filter in self.filter_stack[::-1]:
+                data = filter(data)
+            return data
+        else:
+            return self.data[item][self.t0:self.t1]
 
     def __repr__(self):
         return f"Traces: {','.join([str(i) for i, _ in enumerate(self)])}\n" \
@@ -49,6 +59,7 @@ class Trace:
     @classmethod
     def from_csv(cls, csv_file, *, f, **kwargs) -> Trace_object:
         obj = cls(f=f)
+        obj.file_name = csv_file
         for trace in loaders.csv(csv_file):
             obj.add_data(trace)
         return obj
@@ -62,6 +73,19 @@ class Trace:
         """
         signal, sampling_period = loaders.axonabf(abf_file)
         obj = cls(f=int(1/sampling_period))
+        obj.file_name = abf_file
+        for trace in signal:
+            obj.add_data(trace)
+        return obj
+
+    @classmethod
+    def from_data(cls, signal, sampling_period, *args, **kwargs) -> Trace_object:
+        """
+        Load data using the Axon Binary File format
+        :param abf_file:
+        :return: updated cls
+        """
+        obj = cls(f=int(1 / sampling_period))
         for trace in signal:
             obj.add_data(trace)
         return obj
@@ -72,11 +96,15 @@ class Trace:
 
     @property
     def filtered(self):
+        '''
+        !!! Depreciated !!!
+        '''
         stack = copy.deepcopy(self.filter_stack)
         return self._apply_filter_stack(stack)
 
     def _apply_filter_stack(self, stack):
         """
+        !!! Depreciated !!!
         Recursively apply the filter stack
         :param stack:
         :return: filtered trace
@@ -95,6 +123,13 @@ class Trace:
     def add_filter(self, _filter, **kwargs) -> None:
         partial_filter = partial(_filter, f=self.sampling_period, **kwargs)
         self.filter_stack.append(partial_filter)
+
+    def reset_filters(self):
+        self.filter_stack = [_unfiltered]
+
+    def set_optimization(self, optimize_events: bool, func=None):
+        self.optimize_events = optimize_events
+        # self.optimization_function = func
 
     @property
     def rawdata(self) -> np.array:

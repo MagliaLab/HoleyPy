@@ -25,7 +25,9 @@ def load(filename):
         Returns the signal extracted from the input, and the sampling period as a float
 
     """
+
     try:
+
         # Load axon file into memory
         bl = AxonIO(filename=filename).read()
 
