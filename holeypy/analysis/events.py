@@ -41,7 +41,6 @@ def single_channel_search(levels: tuple, signal: np.array, sampling_period: floa
 
     # While the dwell time suggests that also spikes can be seen, at least 2 data points are required to be an event
     n_filter = max(2, int(dwell_time / float(sampling_period)))
-    print(n_filter)
 
     # Only keep those events that are at least 2 or n_filter data points long
     idx = np.where(level_1_end_index_a - level_1_start_index_a > n_filter)[0]
