@@ -242,7 +242,7 @@ def optimize_events(trace, sampling_period, database, class_function=gNDF):
     '''
 
     signal = trace.data
-    print('Fetching database: %s' % str(time.time()))
+    # print('Fetching database: %s' % str(time.time()))
     trace_events = database.get_samples(table_name="results", field_name='*')
     events = {}
     for c, field_name in enumerate(database.get_fields(table_name="results")):
@@ -251,7 +251,7 @@ def optimize_events(trace, sampling_period, database, class_function=gNDF):
     func = class_function()
     trace_signal = signal[trace.active_trace]
 
-    print('Started fitting: %s' % str(time.time()))
+    # print('Started fitting: %s' % str(time.time()))
 
     fields = ['Method', 'Trace', 'Function', 'Fitting_parameters'] + list(func.features())
     Optimized = collections.namedtuple('Optimized', fields)
@@ -266,7 +266,7 @@ def optimize_events(trace, sampling_period, database, class_function=gNDF):
             sigma = events['Dwell_time'][c]
             a = (1-events['Ires'][c])*abs(events['baseline_current'][c])
             try:
-                print('\tFit start %s  : %s' % (str(c), str(time.time())))
+                # print('\tFit start %s  : %s' % (str(c), str(time.time())))
                 func = class_function()
                 result = func.fit(x, y, I0=I0, sigma=sigma, a=a)
                 if result:

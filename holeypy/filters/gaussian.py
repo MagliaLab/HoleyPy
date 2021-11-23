@@ -4,6 +4,7 @@ Filters *MUST* return a 1d numpy array
 
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage.filters import gaussian_filter1d
 
 
 def gaussian(signal : np.ndarray, Fs, *, f) -> np.array:
@@ -29,4 +30,4 @@ def gaussian(signal : np.ndarray, Fs, *, f) -> np.array:
     """
     sampling_period = f
     sigma = 1 / (sampling_period * Fs * 2 * np.pi)
-    return gaussian_filter(signal, sigma)
+    return gaussian_filter1d(signal, sigma)
