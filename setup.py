@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(
-    name="HoleyPy",
+    name="holeypy",
     version="v0.0.1",
     author=["Florian L.R. Lucas", "Matthijs J. Tadema"],
-    packages=["HoleyPy"],
+    packages=["holeypy"],
     install_requires=[
         'numpy >= 1.18.2',
         'scipy >= 1.4.1',
