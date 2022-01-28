@@ -34,8 +34,8 @@ class Trace:
         self.store_events = True
 
     def __iter__(self):
-        for trace in self.data:
-            yield trace
+        # This already applies trim
+        return self.__getitem__(self.active_trace)
 
     def __len__(self):
         return len(self.data)
@@ -46,14 +46,14 @@ class Trace:
     def __getitem__(self, item):
         if self.enable_filters:
             data = self.data[item][self.t0:self.t1]
-            for filter in self.filter_stack[::-1]:
-                data = filter(data)
+            for _filter in self.filter_stack[::-1]:
+                data = _filter(data)
             return data
         else:
             return self.data[item][self.t0:self.t1]
 
     def __repr__(self):
-        return f"Traces: {','.join([str(i) for i, _ in enumerate(self)])}\n" \
+        return f"Traces: {','.join([str(i) for i, _ in enumerate(self.data)])}\n" \
                f"Active trace: {self.active_trace}"
 
     @classmethod
@@ -187,3 +187,9 @@ class Trace:
         for trace in signal:
             Y = np.concatenate((Y, np.array(trace[t0:t1])))
         return [Y]
+
+    def as_array(self):
+        # Convenience function for easy processing
+        # Also makes sure trimming and filtering is always applied if
+        # Applicable
+        return np.array(self.__iter__())
