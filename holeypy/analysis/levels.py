@@ -92,7 +92,9 @@ def _ndf_deconvolution(signal, n_peaks=2) -> tuple:
         centres.append(centre)
         variance.append(vrs)
     # Return the peak centre and variance of the normal distribution with the lowest peak centre
-    return centres[np.argmax(np.abs(centres))], abs(variance[np.argmax(np.abs(centres))]), residual
+    # Why not return all?
+    sort_arg = np.argsort(centres)
+    return np.array(centres)[sort_arg], np.array(variance)[sort_arg], residual, np.array(amplitudes)[sort_arg]
 
 
 class Levels(AnalysisBase):
