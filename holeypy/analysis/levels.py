@@ -43,9 +43,9 @@ def get_levels(trace: Trace, sigma=3, *, t0=None, t1=None) -> tuple:
     signal = abs(np.array(signal))*-1
 
     # Fetch the lowest central normal distribution
-    centre, variance, residual = _ndf_deconvolution(signal)
-    l0 = centre * signal_orientation
-    l1 = variance * sigma * signal_orientation
+    centres, variances, residual, *_ = _ndf_deconvolution(signal)
+    l0 = centres[0] * signal_orientation
+    l1 = variances[0] * sigma * signal_orientation
     return l0, l1
 
 
@@ -56,7 +56,9 @@ def _ndf(x, *p) -> np.array:
 
 def _ndf_deconvolution(signal, n_peaks=2) -> tuple:
     # Initialise variables
-    centres, variance = ([], [])
+    centres = []
+    variance = []
+    amplitudes = []
 
     # Create a histogram of the data
     n_bins = 2000
@@ -88,7 +90,9 @@ def _ndf_deconvolution(signal, n_peaks=2) -> tuple:
         residual -= _ndf(x_edges, *p).astype('int32')
 
         # Extract the peak centre and variance, add them to the list of fitted centres and variance
-        _, centre, vrs = p
+        # I need amplitudes for other stuff
+        amplitude, centre, vrs = p
+        amplitudes.append(amplitude)
         centres.append(centre)
         variance.append(vrs)
     # Return the peak centre and variance of the normal distribution with the lowest peak centre
