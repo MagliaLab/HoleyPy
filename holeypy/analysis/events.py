@@ -6,6 +6,7 @@ import collections
 from multiprocessing.dummy import Pool as ThreadPool
 
 from itertools import repeat
+from ..trace import Trace
 from .base import AnalysisBase
 from .levels import Levels
 from .fitting_functions import (gNDF)
@@ -18,16 +19,16 @@ import time
 from scipy.fft import rfft, rfftfreq
 
 
-def single_channel_search(levels: tuple, signal: np.array, sampling_period: float, dwell_time=0, skip=2, t0=0, t1=-1):
+def single_channel_search(levels: tuple, trace: Trace, sampling_period: float, dwell_time=0, skip=2):
     # Expand variables
     l0, l1 = levels
 
     # Cut the trace if needed
-    trace_length = len(signal)
+    trace_length = len(trace.as_array())
     # signal = signal[t0:min(trace_length, t1)]
 
     # All data points above the threshold
-    a = np.where(abs(np.array(signal)) < (abs(l0) - abs(l1)))[0]
+    a = np.where(abs(trace.as_array()) < (abs(l0) - abs(l1)))[0]
 
     # Get all event starts (e.g. where two data points are maximum 'skip' apart), relative to vector a
     # Also, we need to append the last data point of the series
@@ -60,20 +61,20 @@ def single_channel_search(levels: tuple, signal: np.array, sampling_period: floa
     level_0_end = level_1_start - 1
 
     # Here we add the cut-off t0
-    level_0_start += t0
-    level_0_end += t0
-    level_1_start += t0
-    level_1_end += t0
+    level_0_start += trace.t0
+    level_0_end += trace.t0
+    level_1_start += trace.t0
+    level_1_end += trace.t0
 
     Event = collections.namedtuple('Event', ['baseline_start', 'baseline_end', 'event_start', 'event_end', 't0'])
-    return [Event(l0s, l0e, l1s, l1e, t0) for l0s, l0e, l1s, l1e in zip(level_0_start, level_0_end, level_1_start, level_1_end)]
+    return [Event(l0s, l0e, l1s, l1e, trace.t0) for l0s, l0e, l1s, l1e in zip(level_0_start, level_0_end, level_1_start, level_1_end)]
 
 
-def single_channel_event_features(signal: np.ndarray, sampling_period: float, events: list):
+def single_channel_event_features(trace: Trace, sampling_period: float, events: list):
     # Simply insert the times from level_0 and level_1 to get the trace data
     # Also, the type must be object as we have an n-dimensional array of multiple sizes
-    level_0 = np.array([signal[int(event.baseline_start-event.t0):int(event.baseline_end-event.t0)] for event in events], dtype=object)
-    level_1 = np.array([signal[int(event.event_start-event.t0):int(event.event_end-event.t0)] for event in events], dtype=object)
+    level_0 = np.array([trace.as_array()[int(event.baseline_start-event.t0):int(event.baseline_end-event.t0)] for event in events], dtype=object)
+    level_1 = np.array([trace.as_array()[int(event.event_start-event.t0):int(event.event_end-event.t0)] for event in events], dtype=object)
 
     # Calculate the mean current and standard deviation of baseline events (level 0)
     level_0_mean = np.array([np.mean(i) for i in level_0])
@@ -94,7 +95,7 @@ def single_channel_event_features(signal: np.ndarray, sampling_period: float, ev
                                                    'residual_current', 'residual_current_sd', 'dwell_time'])
     return [Features(bc, bsd, ec, esd, ires, ires_sd, dwt) for bc, bsd, ec, esd, ires, ires_sd, dwt in
             zip(level_0_mean, level_0_sd, level_1_mean, level_1_sd,
-                residual_current, residual_current_sd_2, dwell_time)]
+                residual_current, residual_current_sd_2, dwell_time)], (level_0, level_1)
 
 
 def threshold_search(signal: np.ndarray, sampling_period: float, levels: tuple,
@@ -371,21 +372,21 @@ class Events(AnalysisBase):
 
     def _operation(self, get_features=True, store_events=True):
 
-        signal = self.trace.data
+        # Trace properties should be set in Trace object
         sampling_period = self.trace.sampling_period
-        trace = self.trace.active_trace
         dwell_time = self.trace.minimal_dwell_time
         skip = self.trace.event_skip
-        self.signal_length = len(self.trace[trace])
+        self.signal_length = len(self.trace.as_array())
 
-        self.events = single_channel_search(self.levels, self.trace[trace],
-                                            sampling_period, dwell_time=dwell_time, skip=skip,
-                                            t0=self.trace.t0, t1=self.trace.t1)
+        self.events = single_channel_search(self.levels, self.trace,
+                                            sampling_period, dwell_time=dwell_time, skip=skip)
         if get_features:
-            self.features = single_channel_event_features(self.trace[trace], sampling_period, self.events)
+            self.features, level_data = single_channel_event_features(self.trace, sampling_period, self.events)
         if self.trace.store_events:
             self.store_threshold()
-        self.result = True
+        # Result should be actual result, success should be bool
+        self.success = True
+        self.result = level_data
 
     def store_threshold(self):
         events = []

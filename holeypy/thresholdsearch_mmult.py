@@ -43,5 +43,5 @@ def thresholdsearch_mmult( signal, sampling_period, L0, l1, dwelltime=0, skip=2,
         L0_start, L0_end = np.delete( np.insert( L1_end+1, 0, 0 ), -1, 0 ), L1_start                          # Set L0 relative to L1
         L0_events = np.array( [ signal[i:j] for i, j in zip( L0_start, L0_end ) ] )
         return ( L0_events, L1_events, L0_start, L0_end, L1_start, L1_end, level_index )
-    except:
-        pass
+    except Exception as e:
+        raise e

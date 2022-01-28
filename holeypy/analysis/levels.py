@@ -1,11 +1,12 @@
 from .base import AnalysisBase
+from .. import Trace
 import warnings
 
 import numpy as np
 from scipy.optimize import curve_fit
 
 
-def get_levels(signal: np.array, sigma=3, trace=0, t0=0, t1=-1) -> tuple:
+def get_levels(trace: Trace, sigma=3, *, t0=None, t1=None) -> tuple:
     """Level detection algorithm.
     
     This function uses a gaussian fit around the main signal to determine the open pore current and threshold cut-off.
@@ -17,9 +18,9 @@ def get_levels(signal: np.array, sigma=3, trace=0, t0=0, t1=-1) -> tuple:
         Each top-level array is threated as a trace of a signal allowing easy cross-trace analysis (for e.g. current dependent analysis).
     sigma : int
         The number of sigma (multiplier), that the threshold is set from the open pore.
-    trace : int
+    trace : int ! Deprecated !, active trace should be set in Trace object
         The trace to be analysed (n-th number array)
-    t0 : int
+    t0 : int ! Deprecated !, active trace should be set in Trace object
         The first datapoint to be analysed in the trace.
     t1 : int
         The last datapoint to be analysed in the trace
@@ -30,8 +31,10 @@ def get_levels(signal: np.array, sigma=3, trace=0, t0=0, t1=-1) -> tuple:
         A tuple containing (in order), centroid of the open pore current and threshold.
         
     """
+    if any(t is not None for t in [t0, t1]):
+        raise UserWarning("Some parameters are deprecated, please set them in the trace objects")
     # Fetch and trim signal
-    signal = signal[trace][t0:t1]
+    signal = trace.as_array()
 
     # Determine the orientation of the signal
     signal_orientation = np.sign(sum(signal))*-1
@@ -40,9 +43,9 @@ def get_levels(signal: np.array, sigma=3, trace=0, t0=0, t1=-1) -> tuple:
     signal = abs(np.array(signal))*-1
 
     # Fetch the lowest central normal distribution
-    centre, variance, residual = _ndf_deconvolution(signal)
-    l0 = centre * signal_orientation
-    l1 = variance * sigma * signal_orientation
+    centres, variances, residual, *_ = _ndf_deconvolution(signal)
+    l0 = centres[0] * signal_orientation
+    l1 = variances[0] * sigma * signal_orientation
     return l0, l1
 
 
@@ -53,7 +56,9 @@ def _ndf(x, *p) -> np.array:
 
 def _ndf_deconvolution(signal, n_peaks=2) -> tuple:
     # Initialise variables
-    centres, variance = ([], [])
+    centres = []
+    variance = []
+    amplitudes = []
 
     # Create a histogram of the data
     n_bins = 2000
@@ -85,22 +90,25 @@ def _ndf_deconvolution(signal, n_peaks=2) -> tuple:
         residual -= _ndf(x_edges, *p).astype('int32')
 
         # Extract the peak centre and variance, add them to the list of fitted centres and variance
-        _, centre, vrs = p
+        # I need amplitudes for other stuff
+        amplitude, centre, vrs = p
+        amplitudes.append(amplitude)
         centres.append(centre)
         variance.append(vrs)
     # Return the peak centre and variance of the normal distribution with the lowest peak centre
-    return centres[np.argmax(np.abs(centres))], abs(variance[np.argmax(np.abs(centres))]), residual
+    # Why not return all?
+    sort_arg = np.argsort(centres)
+    return np.array(centres)[sort_arg], np.array(variance)[sort_arg], residual, np.array(amplitudes)[sort_arg]
 
 
 class Levels(AnalysisBase):
     def _operation(self):
-        signal = self.trace.data
-        trace = self.trace.active_trace
-        self.result = get_levels(signal,
-                                 trace=trace,
-                                 t0=self.trace.t0,
-                                 t1=self.trace.t1
-                                 )
+        trace = self.trace
+        try:
+            sigma = self.__getattribute__('sigma')
+        except AttributeError:
+            sigma = 3 # default sigma
+        self.result = get_levels(trace, sigma)
 
     def _after(self):
         if self.result[0] is False:

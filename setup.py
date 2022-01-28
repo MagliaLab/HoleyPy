@@ -10,6 +10,8 @@ setup(
         'scipy >= 1.4.1',
         'h5py >= 2.10.0',
         'neo >= 0.8.0',
+        'pandas',
+        'openpyxl',
         'pyabf'
     ],
     extra_requires={
