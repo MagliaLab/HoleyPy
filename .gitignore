@@ -1,1 +1,8 @@
 *.pyc
+.idea/
+*.ipynb*
+build/
+dist/
+venv/
+*.egg*
+*.h5
