@@ -11,9 +11,6 @@ A python package for analyzing electrophysiology and other things by Florian Luc
 * Threshold search detection of events
 * Determination of Excluded currents (I<sub>ex</sub>), its standard deviation (I<sub>ex</sub>SD) and dwell time
 
-## Installing
-Information regarding installation.
-
 ## Usage example(s)
 Importing module classes:
 ````python
