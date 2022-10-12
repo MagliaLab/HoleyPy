@@ -69,46 +69,52 @@ signal_data.set_dwell_time_cutoff(4e-4)
 signal_data.set_event_skip(2)
 ````
 
-Finding events using threshold search
+Finding events and features using threshold search
 ````python
 # If levels were not set manually, this will use Levels(signal_data) to determine them.
-level_0, level_1, level_0_start, level_0_end, level_1_start, level_1_end = Events(signal_data).run()
+event_analysis = Events(signal_data)
+event_analysis.run()
 
-# level_0 contains an numpy.ndarray with signals from the baseline
-# level_1 contains an numpy.ndarray with signals from the events
-# level_0_start contains an numpy.array with the start times of the baseline
-# level_0_end contains an numpy.array with the end times of the baseline
-# level_1_start contains an numpy.array with the start times of the events
-# level_1_end contains an numpy.array with the end times of the events
+# The events are returned as a list of named tuples with fields: 
+#   baseline_start: (int) datapoint where baseline started
+#   baseline_end: (int) datapoint where baseline ended
+#   event_start: (int) datapoint where event started 
+#   event_end: (int) datapoint where baseline started 
+#   t0: (int) offset
+events = event_analysis.events
+
+# The features are returned as a list of named tuples with fields: 
+#   baseline_current: (float) baseline current
+#   baseline_sd: (float) square root of the variance of the baseline current
+#   event_current: (float) event current
+#   event_sd: (float) square root of the variance of the event current
+#   residual_current: (float) residual current fraction of the event
+#   residual_current_sd: (float) square root of the variance of the residual current (error propagated)
+#   dwell_time: (float) residence time of the event in seconds
+features = event_analysis.features
 ````
-Getting the Excluded current, their standard deviation and dwelltime
+
+The events and features can be accessed using named tuples, which can be used to, for example, calculate the excluded current.
 ````python
-# This will run the Events(signal_data) prior to fetching features.
-# If levels were not set manually, it will also run Levels(signal_data) to determine them.
-excluded_current, excluded_current_variance, dwell_time = Features(signal_data).run()
+excluded_current = np.array([1-i.residual_current for i in features]) # excluded current fraction
+excluded_current_sd = np.array([i.residual_current_sd for i in features]) # The square root of the variance is equal to the residual
 ````
-Running the code above, and plotting a part of the first trace (left) and a histogram of the residual current (right) 
-with 101 bins should result in a figure similar to the one below.
-![test_sample](./nanolyse/tests/data/test_README_Trace_Iex.png)
-
-## Documentation
-We have to add the documentation here.
 
 ## Authors and acknowledgements
 #### Main contributors
-* [Florian L. R. Lucas](https://www.rug.nl/staff/f.l.r.lucas/ "University of Groningen staff page")
+* [Florian L. R. Lucas](http://orcid.org/0000-0002-9561-5408 "Orcid page")
 * [Matthijs Tadema](https://www.rug.nl/staff/m.j.tadema/ "University of Groningen staff page")
 
 #### Acknowledgements
 * [Maglia lab, University of Groningen](https://sites.google.com/a/rug.nl/maglia-lab-groningen/ "University of Groningen Maglia lab page")
 
 ## Changelog
-
-## License
-License information.
+12-10-2022: Updated readme page
 
 ## How to cite
-Citation information.
+When using this library, please be kind to cite the following work: 
 
-## Related research papers
-* Let's make a nice list here
+<strong>Unbiased Data Analysis for the Parameterization of Fast Translocation Events through Nanopores</strong>
+Florian L. R. Lucas, Kherim Willems, Matthijs J. Tadema, Katarzyna M. Tych, Giovanni Maglia, and Carsten Wloka
+ACS Omega 2022 7 (30), 26040-26046
+DOI: 10.1021/acsomega.2c00871 
