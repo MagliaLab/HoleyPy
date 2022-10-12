@@ -97,6 +97,24 @@ excluded_current = np.array([1-i.residual_current for i in features]) # excluded
 excluded_current_sd = np.array([i.residual_current_sd for i in features]) # The square root of the variance is equal to the residual
 ````
 
+For the unbiased data analysis for the parameterization of fast translocation events run the following code. This will fit a function (default generalised Normal Distribution Function) around each event.
+````python
+results = event_analysis.optimise_events()
+
+# returns a list of named tuples, each element in the list is an optimized event.
+# - Method: (str) method used for optimisation
+# - Trace: (int) trace number
+# - Function: (str) function used for optimisation, e.g. gNDF
+# - Fitting_parameters: (tuple) parameters for Function
+# - Amplitude_block: (float) amplitude of the block
+# - Localisation: (float) centroid of the block in time
+# - Sigma: (float) sigma over the localisation
+# - Beta: (float) beta parameter
+# - Open_current: (float) open pore current
+# - Dwell_time: (float) dwell time of the event
+# - Fs_event: (float) effective frequency
+````
+
 ## Authors and acknowledgements
 #### Main contributors
 * [Florian L. R. Lucas](http://orcid.org/0000-0002-9561-5408 "Orcid page")
